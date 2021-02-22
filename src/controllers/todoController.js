@@ -78,10 +78,12 @@ module.exports.todoUpdate = async ({ params, body, user }, res) => {
 module.exports.todoShare = async ({ body, user }, res) => {
     try {
         body.forEach(async item => {
-            let db = await Todos.findOne({ _id: item.id, owner: user._id });
-            var found = db.contributors.find(c => c == item.contributor);
+            const db = await Todos.findOne({ _id: item.id, owner: user._id });
 
-            if (!found) {
+            const isFound = db.contributors.find(c => c == item.contributor);
+            const isFriend = db.friends.find(c => c == item.friends);
+
+            if (!isFound && isFriend) {
                 db.contributors.push(item.contributor);
                 await db.save();
             }

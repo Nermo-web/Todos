@@ -1,10 +1,13 @@
 const User = require('../db/user');
 
-const updateKeys = ['email', 'password', 'name', 'phone', 'avatar', 'friend', 'gender', 'tags'];
+const excludedKeys = '-password -tokens -__v -friends -roles -createdAt -updatedAt';
+const updateKeys = ['email', 'password', 'name', 'phone', 'avatar', 'friends', 'gender', 'tags'];
 
-module.exports.userList = async (req, res) => {
+module.exports.userFriendList = async (req, res) => {
     try {
-        const users = await User.find({ _id: req.user.id });
+        const users = await User.find({ _id: req.user._id })
+            .populate('friends', excludedKeys);
+
         res.status(200).send(users);
     }
     catch(error) {
@@ -61,6 +64,46 @@ module.exports.userCreate = async ( { body }, res) => {
             user: db.toJSON(),
             token: await db.generateToken(),
         })
+    }
+    catch(error) {
+        res.status(400).send({
+            error: error.message
+        })
+    }
+};
+
+module.exports.userAddFriends = async ({ body, user }, res) => {
+    try {
+        body.forEach(item => {
+            const isFound = user.friends.find(c => c == item.friend);
+
+            if (!isFound) {
+                user.friends.push(item.friend);
+            }
+        });
+
+        await user.save();
+        res.status(200).send();
+    }
+    catch(error) {
+        res.status(400).send({
+            error: error.message
+        })
+    }
+};
+
+module.exports.userRemoveFriends = async ({ body, user }, res) => {
+    try {
+        body.forEach(item => {
+            const index = user.friends.indexOf(c => c == item.friend);
+            if (index > -1) {
+                user.friends.splice(index, 1);
+                
+            }
+        });
+
+        await user.save();
+        res.status(200).send();
     }
     catch(error) {
         res.status(400).send({

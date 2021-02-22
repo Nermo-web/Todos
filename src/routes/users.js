@@ -5,7 +5,10 @@ const controller = require('../controllers/userController');
 
 const router = expires.Router();
 
-router.get('/', auth, controller.userList);
+router.get('/friends', auth, controller.userFriendList);
+router.post('/friends', auth, controller.userAddFriends);
+router.delete('/friends', auth, controller.userRemoveFriends);
+
 router.get('/:id', auth, controller.userDetails);
 router.post('/', controller.userCreate);
 router.patch('/:id', auth, controller.userUpdate);

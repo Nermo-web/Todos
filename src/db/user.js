@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     }],
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
     }],
     tokens: [
         {
@@ -198,6 +198,8 @@ userSchema.methods.toJSON = function() {
 
     delete userObject.password;
     delete userObject.tokens;
+    delete userObject.__v;
+
     return userObject;
 }
 
