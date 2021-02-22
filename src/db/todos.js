@@ -3,11 +3,11 @@ const mongoose = require("mongoose")
 const todoSchema = new mongoose.Schema({
     title: {
         type: String,
-        require: true,
+        required: true,
     },
     description: {
         type: String,
-        require: true,
+        required: true,
     },
     items: [
         {
@@ -27,7 +27,7 @@ const todoSchema = new mongoose.Schema({
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
-        require: true,
+        required: true,
         ref: 'User'
     },
     contributors: [{
@@ -43,7 +43,7 @@ const todoSchema = new mongoose.Schema({
 });
 
 todoSchema.pre('save', async function(next) {
-    if (this.isModified('item')) {
+    if (this.isModified('items')) {
         let isCompleted = true;
         
         this.items.forEach(value => {

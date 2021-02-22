@@ -10,26 +10,26 @@ const Secret = process.env.SECRET || "SUPER COOL SECRET KEY!@";
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true,
         lowercase: true,
         trim: true,
     },
     phone: {
         type: String,
-        require: true,
+        required: true,
         unique: true,
         lowercase: true,
         trim: true,
     },
     password: {
         type: String,
-        require: true,
+        required: true,
         min: 6
     },
     name: {
         type: String,
-        require: true,
+        required: true,
     },
     avatar: {
         type: mongoose.Schema.Types.ObjectId,
@@ -51,15 +51,15 @@ const userSchema = new mongoose.Schema({
         {
             token: {
                 type: String,
-                require: true,
+                required: true,
             },
             expires: {
                 type: Number,
-                require: true,
+                required: true,
             },
             revoked : {
                 type: Boolean,
-                require: true,
+                required: true,
                 default: false
             },
         }
