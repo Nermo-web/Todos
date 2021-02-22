@@ -2,10 +2,9 @@ const Todos = require('../db/todos');
 
 const updateKeys = ['description', 'completed', 'title', 'items', 'contributors'];
 
-module.exports.todoList = async (req, res) => {
+module.exports.todoList = async ( { params: query }, res) => {
     try {
-        const todos = await Todos.find();
-
+        const todos = await Todos.find(query);
         res.status(200).send(todos);
     }
     catch(error) {
