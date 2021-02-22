@@ -2,10 +2,9 @@ const mongoose = require("mongoose")
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
+const settings = require('./../common/settings');
 
 const Todo = require('./todos');
-
-const Secret = process.env.SECRET || "SUPER COOL SECRET KEY!@";
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -78,9 +77,16 @@ userSchema.virtual('todos', {
     foreignField: 'owner',
 })
 
+userSchema.virtual('contributoring', {
+    ref: 'Todo',
+    localField: '_id',
+    foreignField: 'contributors',
+})
+
 userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
-        this.password = bcrypt.hash(this.password, 8)
+        this.password = await bcrypt.hash(this.password, 8)
+        console.log(this.password );
     }
     next();
 })
@@ -94,7 +100,11 @@ userSchema.methods.generateToken = async function() {
     const user = this;
 
     const activeTokens = user.tokens.filter((value) => {
-        return !value.revoked && validateToken(value.token, Secret)
+        return !value.revoked && validateToken(value.token, 
+            settings.secret, 
+            settings.issuer, 
+            settings.audience, 
+            settings.subject)
     });
 
     if (activeTokens.length > 0) {
@@ -102,7 +112,12 @@ userSchema.methods.generateToken = async function() {
     }
 
     const token = {
-        token: generateToken(user._id, Secret),
+        token: generateToken(user._id, 
+            settings.secret, 
+            settings.issuer, 
+            settings.audience, 
+            settings.subject),
+
         expires: Math.floor(Date.now() / 1000) + (60 * 60),
         revoked: false,
     }
@@ -112,28 +127,28 @@ userSchema.methods.generateToken = async function() {
     return token.token;
 }
 
-const generateToken = (id, secret) => {
+const generateToken = (id, secret, issuer, audience, subject) => {
     return jwt.sign({
         id: id,
         iat: Math.floor(Date.now() / 1000) - 30
     }, secret, {
         expiresIn: 60 * 60,
-        audience: '*',
-        issuer: 'todo.api',
-        subject: '*',
+        audience,
+        issuer,
+        subject,
         jwtid: uuid.v4(),
         algorithm: 'HS256',
         encoding: 'UTF8'
     })
 }
 
-const validateToken = (token, secret) => {
+const validateToken = (token, secret, issuer, audience, subject) => {
     try
     {
         return jwt.verify(token, secret, {
-            audience: '*',
-            issuer: 'todo.api',
-            subject: '*',
+            audience,
+            issuer,
+            subject,
             algorithm: 'HS256',
             encoding: 'UTF8'
         });

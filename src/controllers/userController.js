@@ -4,7 +4,7 @@ const updateKeys = ['email', 'password', 'name', 'phone', 'avatar', 'friend', 'g
 
 module.exports.userList = async (req, res) => {
     try {
-        const users = await User.find().populate('todos');
+        const users = await User.find({ _id: req.user.id });
         res.status(200).send(users);
     }
     catch(error) {
@@ -14,11 +14,9 @@ module.exports.userList = async (req, res) => {
     }
 };
 
-module.exports.userDetails = async ({ params } , res) => {
+module.exports.userDetails = async (req , res) => {
     try {
-        const user = await User.findById(params.id)
-            .populate('todos');
-
+        const user = await User.findById(req.user._id);
         res.status(200).send(user);
     }
     catch(error) {
@@ -28,7 +26,7 @@ module.exports.userDetails = async ({ params } , res) => {
     }
 };
 
-module.exports.userUpdate = async ({ params, body }, res) => {
+module.exports.userUpdate = async ({ user, body }, res) => {
     try {
 
         let validUpdate = Object.keys(body).every((key) => {
@@ -39,7 +37,7 @@ module.exports.userUpdate = async ({ params, body }, res) => {
             throw new Error('Invalid update parameters');
         }
 
-        let db = await User.findById(params.id);
+        let db = await User.findById(user._id);
         Object.keys(body).forEach((key) => {
             db[key] = body[key];
         });
@@ -73,7 +71,7 @@ module.exports.userCreate = async ( { body }, res) => {
 
 module.exports.userDelete = async (req, res) => {
     try {
-        await User.deleteOne({ _id: req.params.id });
+        await User.deleteOne({ _id: req.user._id });
         res.status(200).send({});
     }
     catch(error) {

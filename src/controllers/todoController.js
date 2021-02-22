@@ -1,10 +1,17 @@
 const Todos = require('../db/todos');
 
-const updateKeys = ['description', 'completed', 'title', 'items', 'contributors'];
+const updateKeys = ['description', 'completed', 'title', 'items'];
 
-module.exports.todoList = async ( { params: query }, res) => {
+module.exports.todoList = async ( req, res) => {
     try {
-        const todos = await Todos.find(query);
+        const todos = await Todos.find({ $or: [
+            { 
+                owner: req.user._id, ...req.params 
+            }, 
+            { 
+                contributors: req.user._id 
+            }
+        ]});
         res.status(200).send(todos);
     }
     catch(error) {
@@ -15,12 +22,13 @@ module.exports.todoList = async ( { params: query }, res) => {
     }
 };
 
-module.exports.todoDetails = async ({ params } , res) => {
+module.exports.todoDetails = async ({ params, user } , res) => {
     try {
-        const todo = await Todos.findById(params.id)   
-            .populate('owner')
-            .populate('contributors');
-        
+        const todo = await Todos.findOne({ _id: params.id, $or: [
+            { owner: user._id }, 
+            { contributors: user._id }
+        ]});
+
         if (todo == null || todo === undefined) {
             res.status(404).send({
                 error: `Record with id ${params.id} not found`
@@ -37,7 +45,7 @@ module.exports.todoDetails = async ({ params } , res) => {
     }
 };
 
-module.exports.todoUpdate = async ({ params, body }, res) => {
+module.exports.todoUpdate = async ({ params, body, user }, res) => {
     try {
 
         let validUpdate = Object.keys(body).every((key) => {
@@ -48,7 +56,11 @@ module.exports.todoUpdate = async ({ params, body }, res) => {
             throw new Error('Invalid update parameters');
         }
 
-        let db = await Todos.findById(params.id);
+        let db = await Todos.findOne({ _id: params.id, $or: [
+            { owner: user._id }, 
+            { contributors: user._id }
+        ]});
+
         Object.keys(body).forEach((key) => {
             db[key] = body[key];
         });
@@ -63,10 +75,10 @@ module.exports.todoUpdate = async ({ params, body }, res) => {
     }
 };
 
-module.exports.todoShare = async ({ body }, res) => {
+module.exports.todoShare = async ({ body, user }, res) => {
     try {
         body.forEach(async item => {
-            let db = await Todos.findById(item.id);
+            let db = await Todos.findOne({ _id: item.id, owner: user._id });
             var found = db.contributors.find(c => c == item.contributor);
 
             if (!found) {
@@ -84,8 +96,10 @@ module.exports.todoShare = async ({ body }, res) => {
     }
 };
 
-module.exports.todoCreate = async ( { body }, res) => {
+module.exports.todoCreate = async ( { body, user }, res) => {
     try {
+
+        body.owner = user._id;
         const db = new Todos(body);
         await db.save();
         
@@ -98,10 +112,9 @@ module.exports.todoCreate = async ( { body }, res) => {
     }
 };
 
-module.exports.todoDelete = async (req, res) => {
+module.exports.todoDelete = async ({ params, user}, res) => {
     try {
-        console.log(req.params);
-        await Todos.deleteOne({ _id: req.params.id });
+        await Todos.deleteOne({ _id: params.id, owner: user._id });
         res.status(200).send({});
     }
     catch(error) {
