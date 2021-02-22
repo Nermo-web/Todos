@@ -95,12 +95,13 @@ module.exports.userLogin = async ({ body }, res) => {
     }
 };
 
-module.exports.userLogout = async ({ body }, res) => {
+module.exports.userLogout = async ({ token }, res) => {
     try {
-        await User.removeToken(body.token)
+        await User.revokeToken(token)
         res.status(200).send({ });
     }
     catch(error) {
+        console.log(error);
         res.status(401).send({
             error: "Invalid username/password"
         })
