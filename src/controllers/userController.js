@@ -1,3 +1,4 @@
+const sharp = require('sharp');
 const User = require('../db/user');
 
 const excludedKeys = '-password -tokens -__v -friends -roles -createdAt -updatedAt';
@@ -144,9 +145,38 @@ module.exports.userLogout = async ({ token }, res) => {
         res.status(200).send({ });
     }
     catch(error) {
-        console.log(error);
         res.status(401).send({
             error: "Invalid username/password"
         })
+    }
+};
+
+module.exports.userCreateAvatar = async ({ user, file }, res) => {
+    try {
+        user.avatar =  await sharp(file.buffer)
+            .resize({ width:250, height:250 })
+            .png()
+            .toBuffer();
+
+        await user.save();
+        res.status(201).send();
+    }
+    catch(error) {
+        res.status(400).send({
+            error: error.message
+        });
+    }
+};
+
+module.exports.userGetAvatar = async ({ params }, res) => {
+ 
+    try {
+        const user = await User.findById(params.id);
+        res.set('Content-Type', 'image/jpg').status(200).send(user.avatar);
+    }
+    catch(error) {
+        res.status(400).send({
+            error: error.message
+        });
     }
 };

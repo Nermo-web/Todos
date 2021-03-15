@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     avatar: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Buffer,
     },
     gender: {
         type: String,
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema({
                 default: false
             },
         }
-    ]
+    ],
 },
 {
     timestamps: true,
