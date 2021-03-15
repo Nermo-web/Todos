@@ -1,0 +1,18 @@
+0 ) cd C:\<path_to_folder>\Todos\
+1 ) docker build -t todo-app .
+
+2 ) docker images
+    REPOSIROTY TAG ID CREATED
+3 ) docker ps 
+    ID RECPOST/TAG STARTD RUNNIG ???
+4 ) docker run -p 5551:3000 todo-app
+
+-- Docker compose run
+0 ) cd C:\<path_to_folder>\Todos\
+1 ) docker-compose build
+2 ) docker-compose up
+3 ) docker-compose down
+
+
+-- References:
+???
