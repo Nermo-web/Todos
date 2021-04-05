@@ -8,18 +8,18 @@ const controller = require('../controllers/userController');
 
 const router = expires.Router();
 
-router.get('/friends', auth, controller.userFriendList, error);
-router.post('/friends', auth, controller.userAddFriends, error);
-router.delete('/friends', auth, controller.userRemoveFriends, error);
+router.get('/friends', auth, controller.friends, error);
+router.post('/friends', auth, controller.addFriends, error);
+router.delete('/friends', auth, controller.removeFriends, error);
 
-router.get('/:id', auth, controller.userDetails, error);
-router.post('/', controller.userCreate, error);
-router.patch('/:id', auth, controller.userUpdate, error);
-router.delete('/:id', auth, controller.userDelete, error);
-router.post('/login', controller.userLogin, error);
-router.post('/logout', auth, controller.userLogout, error);
+router.get('/:id', auth, controller.details, error);
+router.post('/', controller.create, error);
+router.patch('/:id', auth, controller.update, error);
+router.delete('/:id', auth, controller.details, error);
+router.post('/login', controller.login, error);
+router.post('/logout', auth, controller.logout, error);
 
-router.post('/avatar', auth, upload.single('file'), controller.userCreateAvatar, error);
-router.get('/avatar/:id', controller.userGetAvatar, error);
+router.post('/avatar', auth, upload.single('file'), controller.setAvatar, error);
+router.get('/avatar/:id', controller.getAvatar, error);
 
 module.exports = router;
