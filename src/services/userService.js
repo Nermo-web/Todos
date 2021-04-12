@@ -177,7 +177,7 @@ class UserService
 
         for (let index = 0; index < friends.length; index++) {
             const friend = friends[index];
-console.log(friend);
+            
             var found = await User.findById(friend);
             if (!found) {
                 throw Error("Invalid friend id. User with that id could not be found.");
