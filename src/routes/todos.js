@@ -5,12 +5,11 @@ const controller = require('../controllers/todoController');
 
 const router = expires.Router();
 
-
-router.get('/', auth, controller.todoList);
-router.get('/:id', auth, controller.todoDetails);
-router.post('/', auth, controller.todoCreate);
-router.post('/share', auth, controller.todoShare);
-router.patch('/:id', auth, controller.todoUpdate);
-router.delete('/:id', auth, controller.todoDelete);
+router.get('/', auth, controller.list);
+router.get('/:id', auth, controller.details);
+router.post('/', auth, controller.create);
+router.patch('/:id', auth, controller.update);
+router.delete('/:id', auth, controller.delete);
+router.post('/share/:id', auth, controller.share);
 
 module.exports = router;
